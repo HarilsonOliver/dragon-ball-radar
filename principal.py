@@ -97,21 +97,16 @@ def custo(lugar_atual, vizinho):
 
 # Função para montar o caminho encontrado pelo algoritmo A*
 def montar_caminho(caminho_recente, ponto_partida, ponto_chegada):
-    esfera = pygame.image.load('./mapas/esfera.png')
     goku = pygame.image.load('./mapas/gradar1.png')
-    esfera = pygame.transform.scale(esfera, (TAMANHO, TAMANHO))
     goku = pygame.transform.scale(goku, (TAMANHO, TAMANHO))
-
-    # Desenha o ponto de chegada
-    janela.blit(esfera, (ponto_chegada[1] * TAMANHO, ponto_chegada[0] * TAMANHO))
-
+    
     # Preenche o caminho
     tempo = pygame.time.Clock()
 
     for quadrado in caminho_recente:
         x, y = quadrado
-        rect = pygame.Rect(y * TAMANHO, x * TAMANHO, TAMANHO - 1, TAMANHO - 1)
         janela.blit(goku, (y * TAMANHO, x * TAMANHO))
+        verificar_esferas_radar(quadrado, esferas, alcance=3)
         pygame.display.update()
         tempo.tick(7)
 
@@ -183,13 +178,30 @@ def algoritmo_estrela(transformado, ponto_partida, ponto_chegada):
 
     return None
 
-# Função para verificar esferas dentro do alcance do radar
+# Função para verificar esferas dentro do alcance do radar e desenhar a área do radar
 def verificar_esferas_radar(posicao, esferas, alcance=3):
     esferas_visiveis = []
+    x, y = posicao
+    cor_radar = (255, 255, 0, 128)  # Cor amarela com transparência
+
+    # Desenha a área do radar
+    radar_rect = pygame.Rect((y - alcance) * TAMANHO, (x - alcance) * TAMANHO, (2 * alcance + 1) * TAMANHO, (2 * alcance + 1) * TAMANHO)
+    s = pygame.Surface((radar_rect.width, radar_rect.height), pygame.SRCALPHA)
+    s.fill(cor_radar)
+    janela.blit(s, radar_rect.topleft)
+
     for esfera in esferas:
         if verifica_distancia(posicao, esfera) <= alcance:
             esferas_visiveis.append(esfera)
     return esferas_visiveis
+
+# Função para desenhar as esferas visíveis
+def desenhar_esferas(esferas_visiveis):
+    esfera_img = pygame.image.load('./mapas/esfera.png')
+    esfera_img = pygame.transform.scale(esfera_img, (TAMANHO, TAMANHO))
+    for esfera in esferas_visiveis:
+        x, y = esfera
+        janela.blit(esfera_img, (y * TAMANHO, x * TAMANHO))
 
 # Função para mover o agente explorando o mapa
 def explorar_mapa(transformado, posicao_atual, esferas, chegada):
@@ -197,8 +209,12 @@ def explorar_mapa(transformado, posicao_atual, esferas, chegada):
     esferas_encontradas = []
 
     while esferas:
+        # Redesenha o terreno e a área do radar
+        desenha_terreno.desenha_terreno(transformado, LINHA, COLUNA, AGUA, GRAMA, MONTANHA, KAMI, CAMINHO, PAREDE, TAMANHO, janela)
         esferas_visiveis = verificar_esferas_radar(posicao_atual, esferas)
-        
+        desenhar_esferas(esferas_visiveis)
+        pygame.display.update()
+
         if esferas_visiveis:
             menor_custo = float('inf')
             melhor_caminho = None
@@ -216,7 +232,12 @@ def explorar_mapa(transformado, posicao_atual, esferas, chegada):
             esferas.remove(proxima_esfera)
             esferas_encontradas.append(proxima_esfera)
         else:
-            caminho_exploracao = algoritmo_estrela(transformado, posicao_atual, random.choice(list(set([(x, y) for x in range(LINHA) for y in range(COLUNA)]) - caminhos_visitados)))
+            while True:
+                movimento_aleatorio = (random.randint(0, LINHA - 1), random.randint(0, COLUNA - 1))
+                if (movimento_aleatorio != posicao_atual and movimento_aleatorio not in caminhos_visitados):
+                    break
+
+            caminho_exploracao = algoritmo_estrela(transformado, posicao_atual, movimento_aleatorio)
             montar_caminho(caminho_exploracao[0], posicao_atual, caminho_exploracao[0][-1])
             posicao_atual = caminho_exploracao[0][-1]
             caminhos_visitados.add(posicao_atual)
@@ -227,13 +248,17 @@ def explorar_mapa(transformado, posicao_atual, esferas, chegada):
 
 # Loop principal do jogo
 def main():
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            quit()
-
     desenha_terreno.desenha_terreno(transformado, LINHA, COLUNA, AGUA, GRAMA, MONTANHA, KAMI, CAMINHO, PAREDE, TAMANHO, janela)
     explorar_mapa(transformado, inicio, esferas, chegada)
+    pygame.display.update()
+
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+
+    pygame.quit()
 
 if __name__ == "__main__":
     main()
