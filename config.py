@@ -7,6 +7,7 @@ MONTANHA = (139, 137, 137)
 CAMINHO = (224, 224, 224)
 PAREDE = (139, 137, 137)
 KAMI = (255, 0, 0)
+cor_radar = (255, 255, 255, 20)
 
 # Dicionário de cores
 variavel = {
@@ -41,7 +42,7 @@ janela = pygame.display.set_mode((LARGURA, ALTURA))
 LINHA = 42
 COLUNA = 42
 
-# Coordenadas do início, destinos, esfera e chegada
+# Coordenadas do início, destinos, chegada
 inicio = (19, 19)
 esfera = (2, 3)
 chegada = (7, 8)
