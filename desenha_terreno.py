@@ -1,6 +1,5 @@
 import pygame
 
-
 def desenha_terreno(transformado, LINHA, COLUNA, AGUA, GRAMA, MONTANHA, KAMI, CAMINHO, PAREDE, TAMANHO, janela):
 
   for linha in range(LINHA):

@@ -1,3 +1,5 @@
+import pygame
+
 # Cores de cada tipo de terreno
 AGUA = (30, 144, 255)
 GRAMA = (124, 252, 0)
@@ -6,6 +8,7 @@ CAMINHO = (224, 224, 224)
 PAREDE = (139, 137, 137)
 KAMI = (255, 0, 0)
 
+# Dicionário de cores
 variavel = {
     "AGUA": AGUA,
     "GRAMA": GRAMA,
@@ -23,15 +26,22 @@ CUSTO = {
     MONTANHA: 60
 }
 
+# Inicialização do Pygame
+pygame.init()
+
 # Dimensões da tela
 LARGURA = 800
 ALTURA = 800
-TAMANHO = 17
+TAMANHO = 19
+
+# Criação da janela
+janela = pygame.display.set_mode((LARGURA, ALTURA))
 
 # Dimensões da matriz do terreno
 LINHA = 42
 COLUNA = 42
 
-# Coordenadas do inicio e chegada
-inicio = (19, 17)
+# Coordenadas do início, destinos, esfera e chegada
+inicio = (19, 19)
+esfera = (2, 3)
 chegada = (7, 8)
