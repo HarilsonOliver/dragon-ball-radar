@@ -50,8 +50,8 @@ CUSTO = {
 # Carregar imagens de cada tipo de terreno
 IMAGENS = {
     "AGUA": pygame.image.load('./mapas/agua1.png'),
-    "GRAMA": pygame.image.load('./mapas/grama1.png'),
-    "MONTANHA": pygame.image.load('./mapas/terra.jpg'),
+    "GRAMA": pygame.image.load('./mapas/grama.png'),
+    "MONTANHA": pygame.image.load('./mapas/terra1.png'),
     "KAMI": pygame.image.load('./mapas/kamee.png'),
 }
 

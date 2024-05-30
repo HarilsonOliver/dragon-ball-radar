@@ -8,7 +8,7 @@ def desenha_terreno(transformado, LINHA, COLUNA, AGUA, GRAMA, MONTANHA, KAMI, CA
             pygame.draw.rect(janela, cor, (coluna * TAMANHO, linha * TAMANHO, TAMANHO - 1, TAMANHO - 1))
 
 def montar_caminho(posicao_anterior, posicao_atual, janela, transformado):
-    goku = pygame.image.load('.\\mapas\\gradar1.png')
+    goku = pygame.image.load('.\\mapas\\goku.png')
     goku = pygame.transform.scale(goku, (TAMANHO, TAMANHO))
 
     if posicao_anterior:
