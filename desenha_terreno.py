@@ -1,21 +1,23 @@
 import pygame
+from config import COLUNA, LINHA, TAMANHO, IMAGENS
 
 def desenha_terreno(transformado, LINHA, COLUNA, AGUA, GRAMA, MONTANHA, KAMI, CAMINHO, PAREDE, TAMANHO, janela):
-
-  for linha in range(LINHA):
-    for coluna in range(COLUNA):
-      #Cor do espaço com base no seu valor de custo
-        if transformado[linha][coluna] == AGUA:
-          cor = (45,72,181)
-        elif transformado[linha][coluna] == GRAMA:
-          cor = (140,211,70)
-        elif transformado[linha][coluna] == MONTANHA:
-          cor = (82,70,44)
-        elif transformado[linha][coluna] == KAMI:
-          cor = (255,0,0)
-        elif transformado[linha][coluna] == CAMINHO:
-          cor = (201, 176, 10)
-        elif transformado[linha][coluna] == PAREDE:
-          cor = (255, 255, 255)
-        
-        pygame.draw.rect(janela, cor, (coluna * TAMANHO, linha * TAMANHO, TAMANHO-1, TAMANHO-1))
+    for linha in range(LINHA):
+        for coluna in range(COLUNA):
+            tipo_terreno = transformado[linha][coluna]
+            imagem = None
+            if tipo_terreno == (30, 144, 255):  # AGUA
+                imagem = IMAGENS["AGUA"]
+            elif tipo_terreno == (124, 252, 0):  # GRAMA
+                imagem = IMAGENS["GRAMA"]
+            elif tipo_terreno == (139, 137, 137):  # MONTANHA
+                imagem = IMAGENS["MONTANHA"]
+            elif tipo_terreno == (255, 0, 0):  # KAMI
+                imagem = IMAGENS["KAMI"]
+            elif transformado[linha][coluna] == CAMINHO:
+              cor = (201, 176, 10)
+            elif transformado[linha][coluna] == PAREDE:
+              cor = (255, 255, 255)
+            
+            if imagem:
+                janela.blit(imagem, (coluna * TAMANHO, linha * TAMANHO))
