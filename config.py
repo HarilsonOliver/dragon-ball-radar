@@ -27,7 +27,7 @@ MONTANHA = (139, 137, 137)
 CAMINHO = (224, 224, 224)
 PAREDE = (139, 137, 137)
 KAMI = (255, 0, 0)
-cor_radar = (255, 255, 255, 20)
+cor_radar = (255, 255, 255, 50)
 
 # Dicionário de cores
 variavel = {
@@ -50,8 +50,8 @@ CUSTO = {
 # Carregar imagens de cada tipo de terreno
 IMAGENS = {
     "AGUA": pygame.image.load('./mapas/agua1.png'),
-    "GRAMA": pygame.image.load('./mapas/grama.png'),
-    "MONTANHA": pygame.image.load('./mapas/terra1.png'),
+    "GRAMA": pygame.image.load('./mapas/grama1.png'),
+    "MONTANHA": pygame.image.load('./mapas/terra.png'),
     "KAMI": pygame.image.load('./mapas/kamee.png'),
 }
 

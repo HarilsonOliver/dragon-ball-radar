@@ -11,11 +11,6 @@ def montar_caminho(posicao_anterior, posicao_atual, janela, transformado):
     goku = pygame.image.load('.\\mapas\\goku.png')
     goku = pygame.transform.scale(goku, (TAMANHO, TAMANHO))
 
-    if posicao_anterior:
-        x_anterior, y_anterior = posicao_anterior
-        cor_anterior = transformado[x_anterior][y_anterior]
-        pygame.draw.rect(janela, cor_anterior, (y_anterior * TAMANHO, x_anterior * TAMANHO, TAMANHO, TAMANHO))
-
     x_atual, y_atual = posicao_atual
     janela.blit(goku, (y_atual * TAMANHO, x_atual * TAMANHO))
     pygame.display.update()

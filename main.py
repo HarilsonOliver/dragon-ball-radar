@@ -24,6 +24,17 @@ def main():
     janela = pygame.display.set_mode((LARGURA, ALTURA))
     pygame.display.set_caption("Dragon Ball Radar")
 
+    # Carregar efeitos sonoros
+    pygame.mixer.music.load('./mapas/soundtrack.mp3')
+    pygame.mixer.music.play(-1)
+    pygame.mixer.init()
+    searching = pygame.mixer.Sound('./mapas/searching.mp3')
+    found = pygame.mixer.Sound('./mapas/found.mp3')
+    flying = pygame.mixer.Sound('./mapas/flying.mp3')
+
+    searching_channel = searching.play(loops=-1)
+    flying_channel = flying.play(loops=-1)
+
     transformado = carrega_terreno(traduz_terreno, transforma_terreno, variavel)
     destinos_dinamicos = gera_destinos_dinamicos()
     partida = inicio
@@ -47,12 +58,14 @@ def main():
     caminho_inicial, _ = algoritmo_estrela(transformado, partida, (0, 0))
     caminhos.extend(caminho_inicial)
 
+
     while rodando:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 rodando = False
 
         if agente_movendo:
+            
             if caminhos:
                 proximo_passo = caminhos.pop(0)
                 montar_caminho(posicao_anterior, proximo_passo, janela, transformado)
@@ -64,16 +77,19 @@ def main():
                         if esfera in destinos_dinamicos:
                             # Mover o agente até a esfera e coletar
                             caminho_para_esfera, _ = algoritmo_estrela(transformado, proximo_passo, esfera)
-                            caminhos = caminho_para_esfera + caminhos
                             destinos_dinamicos.remove(esfera)
+                            found_channel = found.play(loops=-1)
+                            caminhos = caminho_para_esfera + caminhos
                             esferas_coletadas += 1
+                            found_channel.stop()
+                            
                             break  # Sair do loop após encontrar uma esfera
-
                 posicao_anterior = proximo_passo
                 posicao_atual = proximo_passo
             else:
                 if esferas_coletadas == 7 and not retorno_inicial:
                     retorno_inicial = True
+                    searching_channel.stop()
                     
                 elif retorno_inicial:
                     caminho_de_volta, _ = algoritmo_estrela(transformado, posicao_atual, inicio)
@@ -115,11 +131,17 @@ def main():
 
                     posicao_anterior = posicao_atual
 
+            # Redesenhar o terreno e as esferas a cada movimento
+            janela.fill((0, 0, 0))  # Limpar a tela
+            desenha_terreno.desenha_terreno(transformado, LINHA, COLUNA, AGUA, GRAMA, MONTANHA, KAMI, CAMINHO, PAREDE, TAMANHO, janela)
+            desenha_esferas(janela, destinos_dinamicos, TAMANHO)
+            montar_caminho(None, posicao_atual, janela, transformado)
+
             if retorno_inicial and posicao_atual == inicio:
                 rodando = False
-                reproduz_video(".\\mapas\\shenlong.mp4")
+                flying_channel.stop()
                 
-
+                reproduz_video(".\\mapas\\shenlong.mp4")
 
         pygame.time.delay(100)  # Delay para não sobrecarregar a CPU
         pygame.display.update()
