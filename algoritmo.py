@@ -44,13 +44,13 @@ def algoritmo_estrela(transformado, ponto_partida, ponto_chegada):
 
         if lugar_atual.posicao == ponto_chegada:
             caminho = []
-            custo_total = 0
+            custos = []
             while lugar_atual:
                 caminho.append(lugar_atual.posicao)
+                if lugar_atual.pai:
+                    custos.append(lugar_atual.custo)
                 lugar_atual = lugar_atual.pai
-                if lugar_atual:
-                    custo_total += lugar_atual.custo
-            return (caminho[::-1], custo_total)
+            return (caminho[::-1], custos[::-1])  # Retornar os custos dos passos
 
         aberta.remove(lugar_atual)
         fechada.append(lugar_atual)

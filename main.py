@@ -6,14 +6,9 @@ import desenha_terreno
 from config import *
 from terreno import gera_destinos_dinamicos, carrega_terreno
 from algoritmo import algoritmo_estrela
-from desenha import montar_caminho, desenha_radar
+from desenha import montar_caminho, desenha_radar, desenha_esferas
 from moviepy.editor import VideoFileClip
 
-def desenha_esferas(janela, esferas, tamanho):
-    esfera_img = pygame.image.load('.\\mapas\\esfera.png')
-    esfera_img = pygame.transform.scale(esfera_img, (tamanho, tamanho))
-    for esfera in esferas:
-        janela.blit(esfera_img, (esfera[1] * tamanho, esfera[0] * tamanho))
 
 def reproduz_video(caminho_video):
     clip = VideoFileClip(caminho_video)
@@ -41,11 +36,16 @@ def main():
 
     desenha_terreno.desenha_terreno(transformado, LINHA, COLUNA, AGUA, GRAMA, MONTANHA, KAMI, CAMINHO, PAREDE, TAMANHO, janela)
     desenha_esferas(janela, destinos_dinamicos, TAMANHO)
+    
+    # Desenha o radar desde o início
+    desenha_radar(janela, partida, TAMANHO, destinos_dinamicos)
     pygame.display.update()
 
     rodando = True
     agente_movendo = True
     caminhos = []
+    custos = []
+    custo_total_acumulado = 0
     esferas_coletadas = 0
     posicao_anterior = None
     retorno_inicial = False
@@ -55,9 +55,9 @@ def main():
     direcao = (0, 1)  # Começa movendo para a direita
 
     # Passo inicial: mover até a primeira célula (0,0) usando A*
-    caminho_inicial, _ = algoritmo_estrela(transformado, partida, (0, 0))
+    caminho_inicial, custos_iniciais = algoritmo_estrela(transformado, partida, (0, 0))
     caminhos.extend(caminho_inicial)
-
+    custos.extend(custos_iniciais)
 
     while rodando:
         for event in pygame.event.get():
@@ -65,25 +65,24 @@ def main():
                 rodando = False
 
         if agente_movendo:
-            
             if caminhos:
                 proximo_passo = caminhos.pop(0)
+                custo_do_passo = custos.pop(0) if custos else 0
+                custo_total_acumulado += custo_do_passo
+                print(f'Movimento para {proximo_passo} com custo {custo_do_passo}. Custo total acumulado: {custo_total_acumulado}')
                 montar_caminho(posicao_anterior, proximo_passo, janela, transformado)
+                
+                # Desenhar o radar na posição atual do agente
                 esferas_no_radar = desenha_radar(janela, proximo_passo, TAMANHO, destinos_dinamicos)
                 
-                # Verificar e coletar esferas dentro do radar
-                if esferas_no_radar:
-                    for esfera in esferas_no_radar:
-                        if esfera in destinos_dinamicos:
-                            # Mover o agente até a esfera e coletar
-                            caminho_para_esfera, _ = algoritmo_estrela(transformado, proximo_passo, esfera)
-                            destinos_dinamicos.remove(esfera)
-                            found_channel = found.play(loops=-1)
-                            caminhos = caminho_para_esfera + caminhos
-                            esferas_coletadas += 1
-                            found_channel.stop()
+                # Verificar se a posição atual é uma posição de esfera
+                if proximo_passo in destinos_dinamicos:
+                    destinos_dinamicos.remove(proximo_passo)
+                    found_channel = found.play()
+                    esferas_coletadas += 1
+                    found_channel.stop()
+                    print(f'Esfera coletada na posição {proximo_passo}')
                             
-                            break  # Sair do loop após encontrar uma esfera
                 posicao_anterior = proximo_passo
                 posicao_atual = proximo_passo
             else:
@@ -92,9 +91,10 @@ def main():
                     searching_channel.stop()
                     
                 elif retorno_inicial:
-                    caminho_de_volta, _ = algoritmo_estrela(transformado, posicao_atual, inicio)
+                    caminho_de_volta, custos_de_volta = algoritmo_estrela(transformado, posicao_atual, inicio)
                     if caminho_de_volta:
                         caminhos.extend(caminho_de_volta)
+                        custos.extend(custos_de_volta)
                 else:
                     # Mover o agente célula por célula em padrão zig-zag
                     if direcao == (0, 1):  # Direita
@@ -122,9 +122,10 @@ def main():
                     esferas_no_radar = desenha_radar(janela, posicao_atual, TAMANHO, destinos_dinamicos)
                     if esferas_no_radar:
                         for esfera in esferas_no_radar:
-                            caminhos.extend(algoritmo_estrela(transformado, posicao_atual, esfera)[0])
-                            destinos_dinamicos.remove(esfera)
-                            esferas_coletadas += 1
+                            caminho_para_esfera, custos_para_esfera = algoritmo_estrela(transformado, posicao_atual, esfera)
+                            caminhos.extend(caminho_para_esfera)
+                            custos.extend(custos_para_esfera)
+                            print(f'Custo para coletar a esfera na posição {esfera}: {sum(custos_para_esfera)}')
                     else:
                         posicao_atual = proxima_posicao
                         montar_caminho(posicao_anterior, posicao_atual, janela, transformado)
@@ -136,14 +137,20 @@ def main():
             desenha_terreno.desenha_terreno(transformado, LINHA, COLUNA, AGUA, GRAMA, MONTANHA, KAMI, CAMINHO, PAREDE, TAMANHO, janela)
             desenha_esferas(janela, destinos_dinamicos, TAMANHO)
             montar_caminho(None, posicao_atual, janela, transformado)
+            
+            # Desenhar o radar na posição atual do agente
+            desenha_radar(janela, posicao_atual, TAMANHO, destinos_dinamicos)
 
             if retorno_inicial and posicao_atual == inicio:
                 rodando = False
                 flying_channel.stop()
                 
-                reproduz_video(".\\mapas\\shenlong.mp4")
+                reproduz_video(".\\mapas\\shenlong1.mov")
+                
+                # Imprimir o custo total ao final
+                print(f'CUSTO TOTAL: {custo_total_acumulado}')
 
-        pygame.time.delay(100)  # Delay para não sobrecarregar a CPU
+        pygame.time.delay(1)  # Delay para não sobrecarregar a CPU
         pygame.display.update()
 
     pygame.quit()

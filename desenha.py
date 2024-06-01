@@ -32,3 +32,10 @@ def desenha_radar(janela, posicao, tamanho, esferas):
                     esferas_dentro_radar.append((px, py))
 
     return esferas_dentro_radar
+
+
+def desenha_esferas(janela, esferas, tamanho):
+    esfera_img = pygame.image.load('.\\mapas\\esfera.png')
+    esfera_img = pygame.transform.scale(esfera_img, (tamanho, tamanho))
+    for esfera in esferas:
+        janela.blit(esfera_img, (esfera[1] * tamanho, esfera[0] * tamanho))
